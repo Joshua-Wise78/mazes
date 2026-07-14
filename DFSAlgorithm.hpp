@@ -30,10 +30,12 @@ public:
 
     visited[startRow][startCol] = true;
     cellStack.push({startRow, startCol});
+    m.notify({MazeStep::Visit, startRow, startCol});
 
     while (!cellStack.empty()) {
       Cord current_cell = cellStack.top();
       cellStack.pop();
+      m.notify({MazeStep::Current, current_cell.row, current_cell.col});
 
       std::vector<Cord> unvistedNeighbors;
 
@@ -71,7 +73,10 @@ public:
                        nextCell.col);
 
         visited[nextCell.row][nextCell.col] = true;
+        m.notify({MazeStep::Visit, nextCell.row, nextCell.col});
         cellStack.push(nextCell);
+      } else {
+        m.notify({MazeStep::BackTrack, current_cell.row, current_cell.col});
       }
     }
   }

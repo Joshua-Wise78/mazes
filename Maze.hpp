@@ -2,6 +2,7 @@
 
 #include "Cell.hpp"
 #include "MazeAlgorithms.hpp"
+#include "MazeObserver.hpp"
 #include <iostream>
 #include <vector>
 
@@ -10,12 +11,21 @@ private:
   int rows;
   int columns;
   std::vector<std::vector<Cell>> grid;
+  MazeObserver *observer = nullptr;
 
 public:
   Maze(int row, int column) {
     rows = row;
     columns = column;
     grid.resize(row, std::vector<Cell>(column));
+  }
+
+  void setObserver(MazeObserver *obs) { observer = obs; }
+
+  void notify(const MazeStep &step) {
+    if (observer) {
+      observer->onStep(*this, step);
+    }
   }
 
   int getRows() const { return rows; }
@@ -35,6 +45,8 @@ public:
       grid[r1][c1].addConnection(Cell::RIGHT);
       grid[r2][c2].addConnection(Cell::LEFT);
     }
+    notify({MazeStep::Carve, r1, c1});
+    notify({MazeStep::Carve, r2, c2});
   }
 
   bool isValid(int r, int c) const {
